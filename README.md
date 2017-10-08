@@ -1,12 +1,34 @@
 Serverless DDNS
 ===============
 
-Serverless DDNS management framework created via [Chalice](https://github.com/aws/chalice).
+Serverless DDNS management REST API framework created via [Chalice](https://github.com/aws/chalice).
+
+Function
+--------
+
+* Manage private DDNS framework with Amazon Route 53.
+* Create, update and delete DNS records via REST API with Amazon API Gateway.
 
 Usage
 -----
 
 Manipulate with REST API.
+
+### GET hostzone
+
+```bash
+$ curl -s -H "Authorization: Token token=XXXXXXXXXXXXXXXXXXXX" -XGET http://your-url/hostzone
+{
+  "status": "exist",
+  "record_sets": [
+    {
+      "records": ["192.168.11.1"],
+      "type": "A",
+      "ttl": 300
+    }
+  ]
+}
+```
 
 ### GET hostzone/record
 
@@ -62,3 +84,14 @@ $ curl -s -H "Authorization: Token token=XXXXXXXXXXXXXXXXXXXX" -XDELETE http://y
   "status": "deleted"
 }
 ```
+
+LICENSE
+-------
+
+[MIT](https://github.com/chroju/serverless-ddns/blob/master/LICENSE)
+
+Author
+------
+
+[chroju](https://chroju.net)
+
