@@ -1,6 +1,6 @@
 import json
 import boto3
-from chalice import Chalice
+from chalice import Chalice, NotFoundError, BadRequestError
 
 r53 = boto3.client('route53')
 app = Chalice(app_name='serverless-ddns')
@@ -13,7 +13,7 @@ def index():
     if len(hosted_zones):
         return [{'id': zone['Id']} for zone in hosted_zones]
     else:
-        return _json_dumps({})
+        raise NotFoundError("any hostzone is not found")
 
 
 @app.route('/{hostzone}/{name}', methods=['GET', 'PUT', 'POST', 'DELETE'])
@@ -27,7 +27,7 @@ def manage_record(hostzone, name):
             result_json = {'status': 'exist', 'detail': record_set_detail}
             return _json_dumps(result_json)
         else:
-            return _json_dumps({"status": "absent"})
+            raise NotFoundError("{} is not registered in {}".format(name, hostzone))
 
     elif request.method == 'PUT':
         values = [request.context['identity']['sourceIp']]
@@ -41,10 +41,15 @@ def manage_record(hostzone, name):
 
     elif request.method == 'DELETE':
         record_sets = _get_dns_record(hostzone=hostzone, name=name)
-        if len(record_sets):
-            record_set_detail = [{'value': i['ResourceRecords'][0]['Value'], 'type': i['Type'], 'ttl': i['TTL']} for i in record_sets]
-            result_json = {'status': 'exist', 'detail': record_set_detail}
-        return _json_dumps(_change_dns_record(hostzone=hostzone, name=name, values=values, action='DELETE'))
+        if len(record_sets) == 1:
+            record_type = record_sets[0]['Type']
+            ttl = record_sets[0]['TTL']
+            values = [i["Value"] for i in record_sets[0]['ResourceRecords']]
+        elif len(record_sets) > 1:
+            raise BadRequestError("too many records exist in {}".format(name))
+        else:
+            raise NotFoundError("{} is not registered in {}".format(name, hostzone))
+        return _json_dumps(_change_dns_record(hostzone=hostzone, name=name, values=values, action='DELETE', record_type=record_type, ttl=ttl))
 
 
 def _get_dns_hosted_zones():
