@@ -7,16 +7,17 @@ app = Chalice(app_name='serverless-ddns')
 app.debug = True
 
 
-@app.route('/')
+@app.route('/', api_key_required=True)
 def index():
     hosted_zones = _get_dns_hosted_zones()
     if len(hosted_zones):
-        return [{'id': zone['Id']} for zone in hosted_zones]
+        result_json = {"hostzones": [{'id': zone['Id'].lstrip("/hostedzone/"), 'name': zone['Name']} for zone in hosted_zones]}
+        return _json_dumps(result_json)
     else:
         raise NotFoundError("any hostzone is not found")
 
 
-@app.route('/{hostzone}/{name}', methods=['GET', 'PUT', 'POST', 'DELETE'])
+@app.route('/{hostzone}/{name}', methods=['GET', 'PUT', 'POST', 'DELETE'], api_key_required=True)
 def manage_record(hostzone, name):
     request = app.current_request
 
