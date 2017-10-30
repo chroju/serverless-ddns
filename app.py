@@ -4,7 +4,7 @@ from chalice import Chalice, NotFoundError, BadRequestError
 
 r53 = boto3.client('route53')
 app = Chalice(app_name='serverless-ddns')
-app.debug = True
+app.debug = False
 
 
 @app.route('/', api_key_required=True)
@@ -15,6 +15,11 @@ def index():
         return _json_dumps(result_json)
     else:
         raise NotFoundError("any hostzone is not found")
+
+
+# TODO
+# @app.route('/{hostzone}', api_key_required=True)
+# def index_hostzone(hostzone):
 
 
 @app.route('/{hostzone}/{name}', methods=['GET', 'PUT', 'POST', 'DELETE'], api_key_required=True)
