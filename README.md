@@ -32,7 +32,7 @@ Since Chalice can only deploy AWS Lambda and API Gateway, you must prepare the f
 
 ### Deploy serverless-ddns
 
-*NOTE:* The deploy process described here is a temporary one. It can be deployed more easily in the future :bow: .
+**NOTE:** The deploy process described here is a temporary one. It can be deployed more easily in the future :bow: .
 
 What is written here contains a simplified usage of AWS Chalice. It is recommended that you read [Chalice Documentation](http://chalice.readthedocs.io/en/latest/quickstart.html) and understand what kind of tool it is.
 
@@ -81,7 +81,7 @@ region=YOUR_REGION
 and deploy. If succeeded, you get API endpoint URL.
 
 ```bash
-$ chalice deploy
+$ chalice deploy --stage prod
 ...
 https://XXXXXXXXXX.execute-api.ap-northeast-1.amazonaws.com/api/
 ```
